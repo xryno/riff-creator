@@ -941,9 +941,10 @@ function App() {
     value ? setMargin(200) : setMargin(0);
   };
 
-  let payload = { ...saveData, userId: getUser().userId.toString() || "" };
+  
 
   const handleSave = async () => {
+    let payload = { ...saveData, userId: getUser().userId.toString() || "" };
     console.log(payload);
     await fetch("https://0e66xn1mo3.execute-api.eu-west-2.amazonaws.com/production/riffs", {
       method: "POST",
@@ -955,8 +956,9 @@ function App() {
     fetchItems();
   };
 
-  let updatePayload = { ...saveData, userId: getUser().userId.toString() || "", entryId };
+ 
   const handleUpdate = async () => {
+     let updatePayload = { ...saveData, userId: getUser().userId.toString() || "", entryId };
     console.log(getUser());
     console.log(updatePayload);
     await fetch("https://0e66xn1mo3.execute-api.eu-west-2.amazonaws.com/production/riffs", {
