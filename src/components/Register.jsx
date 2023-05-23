@@ -28,7 +28,6 @@ function Register({ setMessage, setOpen, setSignup }) {
       [name]: updatedValue,
     };
     setObjToSave(updatedDetails);
-    console.log(objToSave);
   };
 
   const handleSubmit = async () => {
@@ -41,8 +40,7 @@ function Register({ setMessage, setOpen, setSignup }) {
 
     try {
       setIsRegistering(true);
-      const response = await axios.post(registerUrl, objToSave);
-      console.log(response.data.user);
+      await axios.post(registerUrl, objToSave);
       setMessage("Success! You are now registered!");
       setOpen(true);
       setIsRegistering(false);

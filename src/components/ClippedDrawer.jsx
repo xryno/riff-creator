@@ -10,7 +10,6 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
 import Login from "./Login";
 import Register from "./Register";
@@ -27,7 +26,7 @@ export default function ClippedDrawer({
   isLoggedIn,
   allUserRiffs,
   setRiff,
-  setIsRegistering,
+  allRiffs,
   user,
   setOpen,
   setMessage,
@@ -125,13 +124,30 @@ export default function ClippedDrawer({
           </List>
           <Divider />
           <List>
-            {["All riffs"].map((text, index) => (
-              <ListItem key={text} disablePadding>
-                <ListItemButton>
-                  <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItemButton>
-              </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <InboxIcon />
+                </ListItemIcon>
+                <ListItemText primary={"All Riffs"} />
+              </ListItemButton>
+            </ListItem>
+            {allRiffs.map((each, index) => (
+              <ListItemText
+                key={index}
+                primary={each.settings.title}
+                secondary={`Author: ${each.settings.author}`}
+                secondaryTypographyProps={{ color: "#8DC2C7" }}
+                onClick={() => setRiff(each)}
+                sx={{
+                  color: "white",
+                  "&:hover": {
+                    cursor: "pointer",
+                    color: "#79CFF7",
+                  },
+                  marginBottom: 2,
+                }}
+              />
             ))}
           </List>
         </Box>

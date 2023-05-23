@@ -5,7 +5,6 @@ import { TextField } from "@mui/material";
 import axios from "axios";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import { Box } from "@mui/material";
-import { PropTypes } from "prop-types";
 function Login({ setIsLoggedIn, setOpen, setSignup, setMessage }) {
   const loginUrl = "https://0e66xn1mo3.execute-api.eu-west-2.amazonaws.com/production/login";
 
@@ -29,7 +28,6 @@ function Login({ setIsLoggedIn, setOpen, setSignup, setMessage }) {
       [name]: updatedValue,
     };
     setObjToSave(updatedDetails);
-    console.log(objToSave);
   };
 
   const handleSubmit = async () => {
@@ -43,7 +41,6 @@ function Login({ setIsLoggedIn, setOpen, setSignup, setMessage }) {
     try {
       setIsLoggingIn(true);
       const response = await axios.post(loginUrl, objToSave);
-      console.log(response.data.user);
       setUserSession(response.data.user, response.data.token);
       setMessage("Success! You are now logged in! ");
       setOpen(true);
@@ -51,6 +48,8 @@ function Login({ setIsLoggedIn, setOpen, setSignup, setMessage }) {
       setIsLoggingIn(false);
     } catch (error) {
       console.log(error);
+      setMessage("Error logging in, please details are correct.");
+      setOpen(true);
     }
   };
 
