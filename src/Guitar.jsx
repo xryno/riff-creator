@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-const Drum = ({ drumData, onNoteChange, name }) => {
+const Guitar = ({ stringData, onNoteChange, name }) => {
   const [editingIndex, setEditingIndex] = useState(null);
   const inputRefs = useRef([]);
 
@@ -26,8 +26,11 @@ const Drum = ({ drumData, onNoteChange, name }) => {
 
   return (
     <div>
-      <span style={{ display: "inline-block", width: 50, textAlign: "right" }}>{name}</span> |
-      {drumData.map((note, index) => (
+      <span style={{ display: "inline-block", width: 50, marginRight: 3, textAlign: "right" }}>
+        {name}
+      </span>
+      |
+      {stringData.map((note, index) => (
         <span
           key={index}
           onClick={() => handleNoteClick(index)}
@@ -58,4 +61,4 @@ const Drum = ({ drumData, onNoteChange, name }) => {
   );
 };
 
-export default Drum;
+export default Guitar;

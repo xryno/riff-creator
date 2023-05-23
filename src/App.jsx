@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Bar from "./Bar";
+import Guitar from "./Guitar";
 import Drum from "./Drum";
 import InputSlider from "./components/InputSlider";
 import "./App.css";
@@ -858,6 +858,18 @@ function App() {
     }
   }
 
+  async function fetchAllRiffs() {
+    try {
+      const response = await fetch(
+        "https://0e66xn1mo3.execute-api.eu-west-2.amazonaws.com/production/allentries"
+      );
+      const riffData = await response.json();
+      setAllRiffs(riffData.entries);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   const [stringData, setStringData] = useState(blankRiff);
   const [drumData, setDrumData] = useState(blankDrum);
   const [buttonDisabled, setButtonDisabled] = useState(false);
@@ -871,20 +883,29 @@ function App() {
   const [openMenu, setOpenMenu] = useState(false);
   const [margin, setMargin] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(null);
-  const [isRegistering, setIsRegistering] = useState(null);
   const [isAuthenticating, setAuthenticating] = useState(false);
   const [allUserRiffs, setAllUserRiffs] = useState([]);
+  const [allRiffs, setAllRiffs] = useState([]);
   const [entryId, setEntryId] = useState("");
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const drumNames = ["Crash", "Ride", "Open", "Closed", "Snare", "Kick"];
+  const [stringNames, setStringNames] = useState(["E", "B", "G", "D", "A", "E"]);
 
   useEffect(() => {
     isLoggedIn && fetchItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn]);
 
   useEffect(() => {
+    fetchAllRiffs();
+  }, []);
+
+  useEffect(() => {
     setSaveData({ guitar: stringData, drums: drumData, settings: settings });
-    console.log(settings);
+    settings.tuning !== "dropd"
+      ? setStringNames(["E", "B", "G", "D", "A", "E"])
+      : setStringNames(["E", "B", "G", "D", "A", "D"]);
   }, [stringData, drumData, settings]);
 
   const handleStringDataChange = (stringIndex, noteIndex, noteValue) => {
@@ -905,6 +926,9 @@ function App() {
       [name]: value,
     };
     setSettings(updatedSettings);
+    settings.tuning !== "dropd"
+      ? setStringNames(["E", "B", "G", "D", "A", "E"])
+      : setStringNames(["E", "B", "G", "D", "A", "D"]);
   };
 
   const setRiff = (riff) => {
@@ -941,11 +965,8 @@ function App() {
     value ? setMargin(200) : setMargin(0);
   };
 
-  
-
   const handleSave = async () => {
     let payload = { ...saveData, userId: getUser().userId.toString() || "" };
-    console.log(payload);
     await fetch("https://0e66xn1mo3.execute-api.eu-west-2.amazonaws.com/production/riffs", {
       method: "POST",
       body: JSON.stringify(payload),
@@ -956,11 +977,8 @@ function App() {
     fetchItems();
   };
 
- 
   const handleUpdate = async () => {
-     let updatePayload = { ...saveData, userId: getUser().userId.toString() || "", entryId };
-    console.log(getUser());
-    console.log(updatePayload);
+    let updatePayload = { ...saveData, userId: getUser().userId.toString() || "", entryId };
     await fetch("https://0e66xn1mo3.execute-api.eu-west-2.amazonaws.com/production/riffs", {
       method: "PUT",
       body: JSON.stringify(updatePayload),
@@ -968,6 +986,7 @@ function App() {
         "Content-Type": "application/json",
       },
     });
+
     fetchItems();
   };
 
@@ -1063,7 +1082,6 @@ function App() {
         }
         const fullPath = `sounds/${i + 1}/${fileName}`;
 
-        console.log(fullPath);
         const duration = noteDuration * 1200 * durationMultiplier;
         playNote(fullPath, duration);
       });
@@ -1107,11 +1125,11 @@ function App() {
           handleMenu={handleMenu}
           isLoggedIn={isLoggedIn}
           setIsLoggedIn={setIsLoggedIn}
-          setIsRegistering={setIsRegistering}
           isAuthenticating={isAuthenticating}
           setAuthenticating={setAuthenticating}
           user={user}
           allUserRiffs={allUserRiffs}
+          allRiffs={allRiffs}
           setRiff={setRiff}
           message={message}
           setMessage={setMessage}
@@ -1131,7 +1149,7 @@ function App() {
               <Typography style={{ paddingBottom: 17, paddingRight: 125 }}>Riff info:</Typography>
               <MyTextField title={settings.title} handleSettingsChange={handleSettingsChange} />
               <div style={{ paddingBottom: 17, paddingRight: 135 }}>
-                Author: {settings.author || "guest"}
+                Author: {isLoggedIn ? settings.author || user.username : "guest"}
               </div>
               <div
                 style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}
@@ -1146,14 +1164,16 @@ function App() {
                     Save
                   </Button>
                 ) : (
-                  <Button
-                    variant="contained"
-                    onClick={handleUpdate}
-                    style={{ height: 35, marginTop: 20 }}
-                    disabled={!isLoggedIn}
-                  >
-                    Update
-                  </Button>
+                  user.username === settings.author && (
+                    <Button
+                      variant="contained"
+                      onClick={handleUpdate}
+                      style={{ height: 35, marginTop: 20 }}
+                      disabled={!isLoggedIn}
+                    >
+                      Update
+                    </Button>
+                  )
                 )}
                 <Button
                   variant="contained"
@@ -1253,9 +1273,10 @@ function App() {
           >
             <p>Guitar</p>
             {stringData.map((stringDataItem, stringIndex) => (
-              <Bar
+              <Guitar
                 key={stringIndex}
                 stringData={stringDataItem}
+                name={stringNames[stringIndex]}
                 onNoteChange={(noteIndex, noteValue) =>
                   handleStringDataChange(stringIndex, noteIndex, noteValue)
                 }
@@ -1291,6 +1312,7 @@ function App() {
               <Drum
                 key={drumIndex}
                 drumData={drumDataItem}
+                name={drumNames[drumIndex]}
                 onNoteChange={(noteIndex, noteValue) =>
                   handleDrumDataChange(drumIndex, noteIndex, noteValue)
                 }
