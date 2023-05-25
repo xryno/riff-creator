@@ -3,10 +3,11 @@ version: 0.2
 phases:
   pre_build:
     commands:
+      - echo VITE_API_KEY=${VITE_API_KEY} >> .env
       - npm install
   build:
     commands:
       - npm run build
   post_build:
     commands:
-      - aws s3 cp --recursive ./dist s3://riff-creator/
+      - aws s3 cp --recursive ./build s3://riff-creator/
