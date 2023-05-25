@@ -1197,7 +1197,7 @@ function App() {
               <Typography style={{ paddingBottom: 17, paddingRight: 125 }}>Riff info:</Typography>
               <TextField
                 id="outlined-basic"
-                label="Riff name"
+                label="Riff name:"
                 variant="outlined"
                 value={settings.title}
                 onChange={(event) => handleSettingsChange(event.target.value, "title")}
