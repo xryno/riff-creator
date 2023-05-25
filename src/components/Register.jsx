@@ -40,7 +40,12 @@ function Register({ setMessage, setOpen, setSignup }) {
 
     try {
       setIsRegistering(true);
-      await axios.post(registerUrl, objToSave);
+      const requestConfig = {
+        headers: {
+          "x-api-key": import.meta.env.VITE_API_KEY,
+        },
+      };
+      await axios.post(registerUrl, objToSave, requestConfig);
       setMessage("Success! You are now registered!");
       setOpen(true);
       setIsRegistering(false);
@@ -89,7 +94,16 @@ function Register({ setMessage, setOpen, setSignup }) {
       >
         Register
       </Button>
-      <LoginIcon sx={{ marginLeft: 1 }} onClick={handleClick} />
+      <LoginIcon
+        onClick={handleClick}
+        sx={{
+          "&:hover": {
+            cursor: "pointer",
+            color: "white",
+          },
+          marginLeft: 1,
+        }}
+      />
     </Box>
   );
 }

@@ -8,15 +8,6 @@ export default function MyTextField({ title, handleSettingsChange }) {
       onChange={(event) => handleSettingsChange(event.target.value, "title")}
       variant="outlined"
       sx={{
-        // set": {
-        //   borderColor: "#1976D2",
-        // },
-        // "&:hover fieldset": {
-        //   borderColor: "#1976D2",
-        // },
-        // "&.Mui-focused fieldset": {
-        //   borderColor: "#1976D2",
-
         marginBottom: 4,
         width: 200,
         height: 45,

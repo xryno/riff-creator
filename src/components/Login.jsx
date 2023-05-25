@@ -40,7 +40,12 @@ function Login({ setIsLoggedIn, setOpen, setSignup, setMessage }) {
 
     try {
       setIsLoggingIn(true);
-      const response = await axios.post(loginUrl, objToSave);
+      const requestConfig = {
+        headers: {
+          "x-api-key": import.meta.env.VITE_API_KEY,
+        },
+      };
+      const response = await axios.post(loginUrl, objToSave, requestConfig);
       setUserSession(response.data.user, response.data.token);
       setMessage("Success! You are now logged in! ");
       setOpen(true);
@@ -50,6 +55,7 @@ function Login({ setIsLoggedIn, setOpen, setSignup, setMessage }) {
       console.log(error);
       setMessage("Error logging in, please details are correct.");
       setOpen(true);
+      setIsLoggingIn(false);
     }
   };
 
@@ -94,7 +100,16 @@ function Login({ setIsLoggedIn, setOpen, setSignup, setMessage }) {
         Login
       </Button>
 
-      <AppRegistrationIcon sx={{ marginLeft: 1 }} onClick={handleClick} />
+      <AppRegistrationIcon
+        sx={{
+          "&:hover": {
+            cursor: "pointer",
+            color: "white",
+          },
+          marginLeft: 1,
+        }}
+        onClick={handleClick}
+      />
     </Box>
   );
 }

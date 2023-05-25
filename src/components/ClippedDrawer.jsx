@@ -9,8 +9,9 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import MenuIcon from "@mui/icons-material/Menu";
+import LogoutIcon from "@mui/icons-material/Logout";
 import Login from "./Login";
 import Register from "./Register";
 import { Grid } from "@mui/material";
@@ -31,6 +32,7 @@ export default function ClippedDrawer({
   setOpen,
   setMessage,
   message,
+  logout,
 }) {
   const [signup, setSignup] = useState(false);
   return (
@@ -64,7 +66,21 @@ export default function ClippedDrawer({
                 setSignup={setSignup}
               />
             )}
-            {isLoggedIn && `Logged in as ${user.username}`}
+            {isLoggedIn && (
+              <div style={{ display: "flex", alignItems: "center" }}>
+                Logged in as {user.username}{" "}
+                <LogoutIcon
+                  onClick={logout}
+                  sx={{
+                    "&:hover": {
+                      cursor: "pointer",
+                      color: "white",
+                    },
+                    marginLeft: 2,
+                  }}
+                />
+              </div>
+            )}
           </Grid>
         </Toolbar>
       </AppBar>
@@ -102,7 +118,7 @@ export default function ClippedDrawer({
             <ListItem disablePadding>
               <ListItemButton>
                 <ListItemIcon>
-                  <InboxIcon />
+                  <MusicNoteIcon />
                 </ListItemIcon>
                 <ListItemText primary={"My Riffs"} />
               </ListItemButton>
@@ -127,7 +143,7 @@ export default function ClippedDrawer({
             <ListItem disablePadding>
               <ListItemButton>
                 <ListItemIcon>
-                  <InboxIcon />
+                  <MusicNoteIcon />
                 </ListItemIcon>
                 <ListItemText primary={"All Riffs"} />
               </ListItemButton>

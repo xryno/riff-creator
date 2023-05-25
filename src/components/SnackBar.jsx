@@ -8,7 +8,6 @@ export default function SnackBar({ message, open, setOpen }) {
     if (reason === "clickaway") {
       return;
     }
-
     setOpen(false);
   };
 
@@ -23,6 +22,7 @@ export default function SnackBar({ message, open, setOpen }) {
   return (
     <div>
       <Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         open={open}
         autoHideDuration={6000}
         onClose={handleClose}
