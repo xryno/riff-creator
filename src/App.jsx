@@ -12,11 +12,11 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Button from "@mui/material/Button";
-import MyTextField from "./components/MyTextField";
 import { getUser, getToken, resetUserSession, setUserSession } from "./service/auth";
 import SnackBar from "./components/SnackBar";
 import _ from "lodash";
 import axios from "axios";
+import TextField from "@mui/material/TextField";
 
 const theme = createTheme({
   typography: {
@@ -32,7 +32,7 @@ const theme = createTheme({
     navBar: `linear-gradient(rgba(10, 55, 87, 1), rgba(10, 55, 87, 1))`,
     teal: "#00577C",
     text: {
-      primary: "#777C8C",
+      primary: "#D3CAC2",
       secondary: "white",
       error: "#F00",
     },
@@ -1195,7 +1195,36 @@ function App() {
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
               <Typography style={{ paddingBottom: 17, paddingRight: 125 }}>Riff info:</Typography>
-              <MyTextField title={settings.title} handleSettingsChange={handleSettingsChange} />
+              <TextField
+                id="outlined-basic"
+                label="Riff name"
+                variant="outlined"
+                value={settings.title}
+                onChange={(event) => handleSettingsChange(event.target.value, "title")}
+                sx={{
+                  width: 200,
+                  height: 45,
+                  marginBottom: 3,
+                  color: "#FFFFFF",
+                  "& label.Mui-focused": {
+                    color: "#1976D2",
+                  },
+                  "& .MuiInput-underline:after": {
+                    borderBottomColor: "#1976D2",
+                  },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#1976D2",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#1976D2",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#1976D2",
+                    },
+                  },
+                }}
+              />
               <div style={{ paddingBottom: 17, paddingRight: 135 }}>
                 Author: {isLoggedIn ? settings.author || user.username : settings.author || "guest"}
               </div>
@@ -1319,7 +1348,7 @@ function App() {
               boxShadow: "2px 0px 4px rgba(0, 0, 0, 0.3)",
             }}
           >
-            <p>Guitar</p>
+            <h3>Guitar</h3>
             {stringData.map((stringDataItem, stringIndex) => (
               <Guitar
                 key={stringIndex}
@@ -1355,7 +1384,7 @@ function App() {
               boxShadow: "2px 0px 4px rgba(0, 0, 0, 0.3)",
             }}
           >
-            <p>Drums</p>
+            <h3>Drums</h3>
             {drumData.map((drumDataItem, drumIndex) => (
               <Drum
                 key={drumIndex}
@@ -1366,6 +1395,22 @@ function App() {
                 }
               />
             ))}
+          </div>
+          <div style={{ marginTop: 40, marginLeft: 40, textAlign: "left" }}>
+            <h3>How to use</h3>
+            Guitar and drums can both be programmed by entering notes onto the grid. <p />
+            The guitar grid is similar to guitar tabs. Click anywhere on the grid to start entering
+            notes. <p />
+            Notes can be of the following format:
+            <li>0-12 on all strings for a standard note</li>
+            <li>0m on strings 6, 5 and 4 for a muted note</li>
+            <li>3ph on strings 6 and 5 for a pinch harmonic</li>
+            <li>
+              x can be entered directly after a note to stop it playing over another note if
+              required
+            </li>
+            <p />
+            To program drums, simply input x where you would like the drum hit to be.
           </div>
         </div>
       </ThemeProvider>
