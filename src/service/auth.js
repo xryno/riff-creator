@@ -11,8 +11,12 @@ export function resetUserSession() {
 export function getUser() {
   const user = sessionStorage.getItem("user");
   if (user === "undefined" || !user) {
-    return null;
+    return { user: { username: "guest" } };
   } else {
     return JSON.parse(user);
   }
+}
+
+export function getToken() {
+  return sessionStorage.getItem("token");
 }
