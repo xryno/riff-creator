@@ -13,9 +13,10 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Button from "@mui/material/Button";
 import MyTextField from "./components/MyTextField";
-import { getUser } from "./service/auth";
+import { getUser, getToken, resetUserSession, setUserSession } from "./service/auth";
 import SnackBar from "./components/SnackBar";
 import _ from "lodash";
+import axios from "axios";
 
 const theme = createTheme({
   typography: {
@@ -838,16 +839,28 @@ function App() {
     ],
   ];
 
+  const defaultSettings = {
+    tempo: 120,
+    guitar: "distorted",
+    tuning: "standard",
+    title: "",
+  };
+
+  const requestConfig = {
+    headers: {
+      "x-api-key": import.meta.env.VITE_API_KEY,
+    },
+  };
+
   const user = getUser();
   async function fetchItems() {
     try {
-      const response = await fetch(
-        `https://0e66xn1mo3.execute-api.eu-west-2.amazonaws.com/production/riffs?userId=${user.userId}`
-      );
-      const riffData = await response.json();
+      const riffUrl = `https://0e66xn1mo3.execute-api.eu-west-2.amazonaws.com/production/riffs?userId=${user.userId}`;
+      const response = await axios.get(riffUrl, requestConfig);
+      const riffData = response.data;
       setAllUserRiffs(riffData.entries);
       const newestEntry = _.maxBy(riffData.entries, function (o) {
-        return o.entryId;
+        return o.lastUpdated;
       });
       setStringData(newestEntry.guitar);
       setDrumData(newestEntry.drums);
@@ -860,10 +873,10 @@ function App() {
 
   async function fetchAllRiffs() {
     try {
-      const response = await fetch(
-        "https://0e66xn1mo3.execute-api.eu-west-2.amazonaws.com/production/allentries"
-      );
-      const riffData = await response.json();
+      const allRiffUrl =
+        "https://0e66xn1mo3.execute-api.eu-west-2.amazonaws.com/production/allentries";
+      const response = await axios.get(allRiffUrl, requestConfig);
+      const riffData = response.data;
       setAllRiffs(riffData.entries);
     } catch (err) {
       console.log(err);
@@ -874,11 +887,7 @@ function App() {
   const [drumData, setDrumData] = useState(blankDrum);
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [progressBar, setProgressBar] = useState(0);
-  const [settings, setSettings] = useState({
-    tempo: 120,
-    guitar: "distorted",
-    tuning: "standard",
-  });
+  const [settings, setSettings] = useState(defaultSettings);
   const [saveData, setSaveData] = useState();
   const [openMenu, setOpenMenu] = useState(false);
   const [margin, setMargin] = useState(0);
@@ -891,6 +900,31 @@ function App() {
   const [message, setMessage] = useState("");
   const drumNames = ["Crash", "Ride", "Open", "Closed", "Snare", "Kick"];
   const [stringNames, setStringNames] = useState(["E", "B", "G", "D", "A", "E"]);
+  const verifyUrl = "https://0e66xn1mo3.execute-api.eu-west-2.amazonaws.com/production/verifytoken";
+
+  useEffect(() => {
+    const verifyToken = async () => {
+      const token = getToken();
+      if (token === null) {
+        return;
+      }
+
+      const requestBody = {
+        user: getUser(),
+        token: token,
+      };
+
+      try {
+        const response = await axios.post(verifyUrl, requestBody, requestConfig);
+        setUserSession(response.data.user, response.data.token);
+        setIsLoggedIn(true);
+      } catch (error) {
+        resetUserSession();
+      }
+    };
+    verifyToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn]);
 
   useEffect(() => {
     isLoggedIn && fetchItems();
@@ -899,6 +933,7 @@ function App() {
 
   useEffect(() => {
     fetchAllRiffs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -907,6 +942,16 @@ function App() {
       ? setStringNames(["E", "B", "G", "D", "A", "E"])
       : setStringNames(["E", "B", "G", "D", "A", "D"]);
   }, [stringData, drumData, settings]);
+
+  const logout = () => {
+    resetUserSession();
+    setIsLoggedIn(false);
+    setStringData(blankRiff);
+    setDrumData(blankDrum);
+    setSettings(defaultSettings);
+    setMessage("You have now logged out.");
+    setOpen(true);
+  };
 
   const handleStringDataChange = (stringIndex, noteIndex, noteValue) => {
     const newStringData = [...stringData];
@@ -972,9 +1017,12 @@ function App() {
       body: JSON.stringify(payload),
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": import.meta.env.VITE_API_KEY,
       },
     });
     fetchItems();
+    setMessage("Riff saved successfully!");
+    setOpen(true);
   };
 
   const handleUpdate = async () => {
@@ -984,10 +1032,12 @@ function App() {
       body: JSON.stringify(updatePayload),
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": import.meta.env.VITE_API_KEY,
       },
     });
-
     fetchItems();
+    setMessage("Riff updated successfully!");
+    setOpen(true);
   };
 
   const playNote = (filename, noteDuration) => {
@@ -996,11 +1046,8 @@ function App() {
     const audioElement = new Audio(filename);
     const sourceNode = audioContext.createMediaElementSource(audioElement);
     const convolverNode = audioContext.createConvolver();
-
     sourceNode.connect(analyserNode);
-
     sourceNode.connect(audioContext.destination);
-
     const visualizer = document.getElementById("visualizer");
     let animationFrameId;
     function drawVisualizer() {
@@ -1080,7 +1127,7 @@ function App() {
           }
           fileName = `${number}.wav`;
         }
-        const fullPath = `sounds/${i + 1}/${fileName}`;
+        const fullPath = `sounds/${settings.guitar}/${i + 1}/${fileName}`;
 
         const duration = noteDuration * 1200 * durationMultiplier;
         playNote(fullPath, duration);
@@ -1134,6 +1181,7 @@ function App() {
           message={message}
           setMessage={setMessage}
           setOpen={setOpen}
+          logout={logout}
         />
 
         <div
@@ -1149,7 +1197,7 @@ function App() {
               <Typography style={{ paddingBottom: 17, paddingRight: 125 }}>Riff info:</Typography>
               <MyTextField title={settings.title} handleSettingsChange={handleSettingsChange} />
               <div style={{ paddingBottom: 17, paddingRight: 135 }}>
-                Author: {isLoggedIn ? settings.author || user.username : "guest"}
+                Author: {isLoggedIn ? settings.author || user.username : settings.author || "guest"}
               </div>
               <div
                 style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}
@@ -1290,7 +1338,7 @@ function App() {
               position: "relative",
               top: 0,
               zIndex: 0,
-              marginLeft: 30,
+              marginLeft: 75,
               width: progressBar,
               backgroundColor: "#B0F7DC8F",
               height: "20px",
