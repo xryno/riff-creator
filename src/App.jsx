@@ -1041,9 +1041,9 @@ function App() {
   };
 
   const playNote = (filename, noteDuration) => {
-    const audioContext = createAudioContext();
+    let audioContext = createAudioContext();
     let analyserNode = new AnalyserNode(audioContext, { fftSize: 128 });
-    const audioElement = new Audio(filename);
+    let audioElement = new Audio(filename);
     const sourceNode = audioContext.createMediaElementSource(audioElement);
     const convolverNode = audioContext.createConvolver();
     sourceNode.connect(analyserNode);
@@ -1079,6 +1079,7 @@ function App() {
       convolverNode.buffer = null;
       sourceNode.buffer = null;
       audioElement.pause();
+      audioElement.src = "";
     }, noteDuration);
   };
 
@@ -1277,6 +1278,7 @@ function App() {
                     value={settings.guitar || "distorted"}
                     label="Guitar"
                     onChange={(event) => handleSettingsChange(event.target.value, "guitar")}
+                    MenuProps={{ PaperProps: { style: { backgroundColor: "#0FAF9C" } } }}
                     sx={{
                       height: 45,
                       marginBottom: 2,
@@ -1306,6 +1308,7 @@ function App() {
                     value={settings.tuning || "standard"}
                     label="Tuning"
                     onChange={(event) => handleSettingsChange(event.target.value, "tuning")}
+                    MenuProps={{ PaperProps: { style: { backgroundColor: "#0FAF9C" } } }}
                     sx={{
                       height: 45,
                       color: "#D3CAC2",
