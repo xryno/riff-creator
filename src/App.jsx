@@ -839,13 +839,6 @@ function App() {
     ],
   ];
 
-  const defaultSettings = {
-    tempo: 120,
-    guitar: "distorted",
-    tuning: "standard",
-    title: "",
-  };
-
   const requestConfig = {
     headers: {
       "x-api-key": import.meta.env.VITE_API_KEY,
@@ -853,6 +846,13 @@ function App() {
   };
 
   const user = getUser();
+  const defaultSettings = {
+    tempo: 120,
+    guitar: "distorted",
+    tuning: "standard",
+    author: user.username,
+    title: "",
+  };
   async function fetchItems() {
     try {
       const riffUrl = `https://0e66xn1mo3.execute-api.eu-west-2.amazonaws.com/production/riffs?userId=${user.userId}`;
@@ -864,9 +864,15 @@ function App() {
       });
       setStringData(newestEntry.guitar);
       setDrumData(newestEntry.drums);
-      setSettings(newestEntry.settings);
       setEntryId(newestEntry.entryId);
     } catch (err) {
+      setSettings({
+        tempo: 120,
+        guitar: "distorted",
+        tuning: "standard",
+        author: getUser().username,
+        title: "",
+      });
       console.log(err);
     }
   }
